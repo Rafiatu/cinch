@@ -1,0 +1,13 @@
+build:
+  docker:
+    web:
+      target: api-prod
+      dockerfile: Dockerfile
+
+release:
+  image: web
+  command:
+    - ./bin/migrate
+
+run:
+  web: ./bin/start

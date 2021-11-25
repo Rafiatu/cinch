@@ -1,0 +1,37 @@
+version: '3.7'
+
+x-db-envs: &db-envs
+  POSTGRES_DB: cinchdb
+  POSTGRES_PASSWORD: password
+  POSTGRES_USER: postgres
+
+x-api-vars: &api-vars
+  ALLOWED_HOSTS: 127.0.0.1,localhost
+  DATABASE_URL: postgres://postgres:password@db:5432/cinchdb
+  DEBUG: 1
+  SECRET_KEY: SOME_RANDOM_SET_OF_CHARACTERS_USED_AS_SECRET_KEY_#
+
+services:
+  db:
+    image: postgres:13-alpine
+    environment:
+      <<: *db-envs
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      target: base
+    command: bin/start dev
+    ports:
+      - 18000:8000
+    environment:
+      <<: *api-vars
+    depends_on:
+      - db
+    volumes:
+      - ./tmp:/cinch/tmp
+      - ./project:/cinch/project
+      - ./bin/container:/cinch/bin
+      - ./requirements.txt:/cinch/requirements.txt

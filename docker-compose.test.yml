@@ -1,0 +1,39 @@
+version: '3.7'
+
+x-db-envs: &db-envs
+  POSTGRES_DB: cinchdb
+  POSTGRES_PASSWORD: password
+  POSTGRES_USER: postgres
+
+x-api-vars: &api-vars
+  ALLOWED_HOSTS: 127.0.0.1,localhost
+  DATABASE_URL: postgres://postgres:password@db:5432/cinchdb
+  DEBUG: 1
+  PORT: 18000
+  EMAIL_HOST: $${{ secrets.EMAIL_HOST }}
+  EMAIL_HOST_USER: $${{ secrets.EMAIL_HOST_USER }}
+  EMAIL_HOST_PASSWORD: $${{ secrets.EMAIL_HOST_PASSWORD }}
+  TWILIO_ACCOUNT_SID: $${{ secrets.TWILIO_ACCOUNT_SID }}
+  TWILIO_AUTH_TOKEN: $${{ secrets.TWILIO_AUTH_TOKEN }}
+  TWILIO_NUMBER: $${{ secrets.TWILIO_NUMBER }}
+  PAYSTACK_PUBLIC_KEY: $${{ secrets.PAYSTACK_PUBLIC_KEY }}
+  CLOUD_NAME: $${{ secrets.CLOUD_NAME }}
+  API_KEY: $${{ secrets.API_KEY }}
+  API_SECRET: $${{ secrets.API_SECRET }}
+  DSN: $${{ secrets.DSN }}
+
+services:
+  db:
+    image: postgres:13-alpine
+    environment:
+      <<: *db-envs
+
+  api:
+    build:
+      context: .
+      target: api-prod
+    command: bin/start
+    depends_on:
+      - db
+    environment:
+      <<: *api-vars
